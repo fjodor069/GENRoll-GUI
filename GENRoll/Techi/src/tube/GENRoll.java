@@ -362,8 +362,6 @@ public class GENRoll
 		//line 600
 		// begin van een loop
 		
-		int myLoopTeller = 0;
-		
 		do //until bStageExit
 		{
 		
@@ -399,15 +397,7 @@ public class GENRoll
 			if (CheckStage(myStage))
 			{
 				//go to the next stage
-				//System.out.printf(locale," Going to the next stage NSTAGE = %d ",NSTAGE);
-							
-//				for (int i = 1; i < P.length; i++)
-//				{
-//					  System.out.printf(locale,"%6.0f",P[i]);
-//				}
-				//System.out.println();
-				//System.out.print(" at myStage " + myStage.toString());
-				//System.out.println();
+				
 				//line 840
 				NSTAGE = NSTAGE + 1;
 				//System.out.printf(locale," Now into stage NSTAGE = %d ",NSTAGE);
@@ -430,9 +420,7 @@ public class GENRoll
 						DP0 = -DP00;
 						DT = 0.0;
 							
-						// breek af by unloading 
-						// ========dwz alleen de 1e stage wordt uitgevoerd 
-						bStageExit = true;
+					
 						//
 						break;
 					case 3 : 
@@ -449,6 +437,9 @@ public class GENRoll
 						else
 							DT = DT0;
 						
+					
+						
+						
 						break;
 					case 4:  
 						myStage = Stage.temperature;
@@ -460,6 +451,7 @@ public class GENRoll
 			}
 			else
 			{
+				//==== SOLVING ====
 				//System.out.println("beginning solving");
 				//System.out.printf(locale," NSTAGE = %d  NN = %d     bStageExit = %b \n",NSTAGE,NN,bStageExit);
 				//line 1600
@@ -508,19 +500,13 @@ public class GENRoll
 			
 				P0 = P0 + DP0;
 				TEMP = TEMP + DT;
-				//System.out.printf(locale,"gives new rolling pressure P0 = %8.1f \n",P0);
-			}
-		
-			myLoopTeller++;
+				
+
+				
+				
+			} // == END SOLVING ===
 			
-//			if ((myLoopTeller % 20) == 0)
-//			{
-//				//System.out.printf(locale,"== STAGE: %d == LOOP: %d ====weer 20 regels=====   \n",NSTAGE,myLoopTeller);
-//			}
-//			if ((myLoopTeller %100) == 0)
-//			{
-//				ReadKey();
-//			}
+//		
 			
 		} while (bStageExit != true);
 		
@@ -632,18 +618,7 @@ public class GENRoll
 			}
 		}//end check for layer yield==============	
 		
-		//debuggg
-		//System.out.println(" determine yield");
-		//PrintSingleMatrix(ST,10);
-		//PrintSingleMatrix(EQUI,10);
-//		for (int i = 0; i < K.length; i++)
-//		{
-//			if (K[i])
-//			  System.out.print("1 ");
-//			else
-//			  System.out.print("0 ");
-//		}
-//		System.out.println();
+	
 //		
 	}
 	
@@ -704,9 +679,82 @@ public class GENRoll
 		
 	}
 	
+	//lines 30000 - 33000
 	public void DetermineYieldTemperature()
 	{
-		throw new UnsupportedOperationException("method not implemented");
+		for (int i = 0; i < K.length; i++)
+		{
+			EQUI[i] = sqrt(ST[i]*ST[i]-ST[i]*SR[i]+SR[i]*SR[i]);
+			
+			if (((ALPHAT - ALPHAS)*DT) >= 0.0)
+			{
+				//thermal expansion
+				if (i == 0)
+				{
+					if (EQUI[i] < SYT)
+					{
+						K[i] = false;
+					}
+					else
+					{
+						EQUI[i] = SYT;
+						K[i] = true;
+					}
+				}
+				else
+				{
+					if (EQUI[i] < SYS)
+					{
+						K[i] = false;
+					}
+					else
+					{
+						EQUI[i] = SYS;
+						K[i] = true;
+						if (EQUI[i] == SYS && ALAMD[i] < 0.0)
+						{
+							K[i] = false;
+						}
+					}
+				}
+				
+				
+			}
+			else
+			{
+				//thermal contraction
+				//for first layer
+				if (i == 0)
+				{
+					if (EQUI[i] > SYT)
+					{
+						EQUI[i] = SYT;
+					}
+						K[i] = false;
+					
+				}
+				else
+				{
+					if (EQUI[i] > SYS)
+						EQUI[i] = SYS;
+					K[i] = false;
+					if (EQUI[i] == SYS)
+						K[i] = true;
+					if (EQUI[i] == SYS && ALAMD[i] <= 0.0)
+					  	K[i] = false;
+					
+				}
+				
+				
+			}
+			
+			
+		}
+		
+		
+		
+		
+		//throw new UnsupportedOperationException("method not implemented");
 	}
 	
 	
@@ -904,6 +952,8 @@ public class GENRoll
 				  System.out.printf(locale,"%6.0f",P[i]);
 			}
 			System.out.printf(locale,"     %7.6f",TTH[0]);
+			
+			System.out.println();
 			//
 			
 		}
@@ -1001,6 +1051,36 @@ public class GENRoll
 			break;
 			
 		case temperature:
+			
+			//line 1400
+			if (TOP >= TROLL)
+			{
+				if (TEMP < (TROLL + KK*TSTEP))
+				
+					return;
+			}	
+			else
+			{
+					if (TEMP > (TROLL -KK*TSTEP))
+						return;
+			}
+			
+			System.out.printf(locale,"   %8.1f          %8.1f        ",TEMP,P[0]);
+			for (int i = 0; i <= 9; i++)
+			{
+				if (KJ1[i])
+				  System.out.print("1 ");
+				else
+				  System.out.print("0 ");
+			}
+			for (int i = 1; i <= 8; i++)
+			{
+				  System.out.printf(locale,"%6.0f",P[i]);
+			}
+			System.out.printf(locale,"     %7.6f",TTH[0]);
+			System.out.println();
+			
+			KK++;
 			
 			break;
 		}
@@ -1109,7 +1189,7 @@ public class GENRoll
 				bStageExit = true;
 				return true;
 			}
-			else if (P0 <= DP00)
+			if (P0 <= DP00)
 			{
 				if (P0 < 0.0001)
 				{
@@ -1125,6 +1205,30 @@ public class GENRoll
 			break;
 			
 		case temperature:
+			
+			//check temperature change state
+			//line 1480
+			if (P[0] <= 0.0)
+			{
+				System.out.println("No contact between tube and tubesheet. Joint fails");
+				//end the analysis
+				bStageExit = true;
+				return true;
+			}
+			//line 1500
+			if (TOP < TROLL)
+			{
+				if (TEMP > TOP)
+					return true;
+			}	
+			else
+			{
+				if (TEMP < TOP)
+					return true;
+			}
+			
+			
+			
 			break;
 		
 		
