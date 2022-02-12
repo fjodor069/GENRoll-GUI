@@ -1,0 +1,28 @@
+Example solving simultaneous equations 
+
+
+array A before :
+ 5,0000  1,0000  8,0000 
+ 4,0000  -2,0000  0,0000 
+ 6,0000  7,0000  4,0000 
+
+array B before :
+ 46,0000 
+ 12,0000 
+ 50,0000 
+
+array A after inversion :
+ -0,0303  0,1970  0,0606 
+ -0,0606  -0,1061  0,1212 
+ 0,1515  -0,1098  -0,0530 
+
+array A-1*B gives the solution :
+ 4,0000  4,0000  4,0000 
+ 2,0000  2,0000  2,0000 
+ 3,0000  3,0000  3,0000
+ 
+ 
+ array B after Leqt :
+ 4,0000 
+ 2,0000 
+ 3,0000  

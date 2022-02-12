@@ -21,7 +21,8 @@ import static java.lang.Math.*;
 //
 // there is limited input checking or exception handling !!!
 //
-//  note: in Java all array indexes begin with 0 instead of 1
+//  note: - in Java all array indexes begin with 0 instead of 1
+//  	 - notation is not Java standard
 //
 // 15-3-2015		basic translation is complete	
 // 23-9-2015		start checking and validating
@@ -37,14 +38,19 @@ import static java.lang.Math.*;
 //
 // 2-1-2021			finally solved the bug in Coeff
 //
+//
+// 8-2-2022			add GUI in eclipse
+// 9-2-2022			make get/set properties for input
+//
+
 public class GENRoll
 {
 	private Locale locale;
 	private final int NUM_LAYERS = 10;
 	
 	//====input variables====
-	double ET,SYT,ALPHAT;			//tube material data
-	double ES,SYS,ALPHAS; 			//tubesheet material data
+	private double ET,SYT,ALPHAT;			//tube material data
+	private double ES,SYS,ALPHAS; 			//tubesheet material data
 	double DOUT;					//outside diameter of tube
 	double T0;						//wall thickness of tube
 	double ANU;						//poisson ratio of tube material
@@ -136,22 +142,24 @@ public class GENRoll
 	private Stage myStage; 
 	boolean bStageExit = false;
 	
-
+	String message;
 	
 	//
 	// constructor code
 	// 
+	// not used anymore in GUI app
 	public GENRoll()
 	{
 		locale = Locale.US;
 			
 		
 		ReadInput();
-		PrintInput();
-		PrintMaterial();
 		
-//		ReadKey();
-		Calculate();
+//		PrintInput();
+//		PrintMaterial();
+//		
+//
+//		Calculate();
 		
 				
 	}
@@ -227,6 +235,78 @@ public class GENRoll
 	}
 	
 	
+	public double getET()
+	{
+		return ET;
+	}
+
+
+	public void setET(double eT)
+	{
+		ET = eT;
+	}
+
+
+	public double getSYT()
+	{
+		return SYT;
+	}
+
+
+	public void setSYT(double sYT)
+	{
+		SYT = sYT;
+	}
+
+
+	public double getALPHAT()
+	{
+		return ALPHAT;
+	}
+
+
+	public void setALPHAT(double aLPHAT)
+	{
+		ALPHAT = aLPHAT;
+	}
+
+
+	public double getES()
+	{
+		return ES;
+	}
+
+
+	public void setES(double eS)
+	{
+		ES = eS;
+	}
+
+
+	public double getSYS()
+	{
+		return SYS;
+	}
+
+
+	public void setSYS(double sYS)
+	{
+		SYS = sYS;
+	}
+
+
+	public double getALPHAS()
+	{
+		return ALPHAS;
+	}
+
+
+	public void setALPHAS(double aLPHAS)
+	{
+		ALPHAS = aLPHAS;
+	}
+
+
 	//
 	// this is the complete calculation ....
 	//
@@ -1452,103 +1532,20 @@ public class GENRoll
 	}
 	
 	
-	// Simultaneous equation solver
-	// ===========================
-	// This method solves a set of N linear equations with N unknown variables
-	// as c1*a + c2*b + c3*c = r1
-	// Q is the NxN matrix with N coefficients c1,c2,c3 from N equations
-	// F is the N matrix with equation results r1
-	// the solution for a,b,c is returned a new matrix array
-	// use as example:   printSingleMatrix(   Leqt(A1,B1,3)  ,3);
-	// or:				 Leqt(A,B,19)
-	//
-	// check this
-//	public static double[] Leqt(double[][] Q, double[] F, int N)
+	
+	
+	
+//	public static void main(String[] args)
 //	{
-//			double[][] A = new double[N][N+1];
-//			double[] X = new double[N];
-//			int JJ;
 //			
-//			//copy Q into A
-//			for (int i = 0; i < N; i++)
-//				for (int j = 0; j < N; j++)
-//					A[i][j] = Q[i][j];
-//			
-//			//copy F into A
-//			for (int i = 0; i < N; i++)
-//				A[i][N] = F[i];
-//			
-//			//
-//			//
-//			for (int k = 0; k < N-1; k++)
-//			{
-//				JJ = k;
-//				double BIG = Math.abs(A[k][k]);
-//				int kp1 = k + 1;
-//				for (int i = kp1; i < N; i++)
-//				{
-//					
-//					double AB = Math.abs(A[i][k]);
-//					if ((BIG - AB) < 0)
-//					  JJ = 1;
-//				}
-//				if ((JJ- k) < 0)
-//					for (int j = k; j <= N; j++)
-//					{
-//						double temp = A[JJ][j];
-//						A[k][j] = temp;
-//					}
-//				else
-//					for (int i = kp1; i < N; i++)
-//					{
-//						
-//						double Quot = A[i][k] / A[k][k];
-//						//System.out.println(Quot);
-//						//kan je hier delen door 0 ?? JA
-//						//
-//						for (int j = kp1; j <= N; j++)
-//							A[i][j] = A[i][j] - Quot*A[k][j];
-//					}
-//				for (int i = kp1; i < N; i++)
-//					A[i][k] = 0.0;
-//				
-//				X[N-1] = A[N-1][N] / A[N-1][N];
-//				for (int NN = 0; NN <= N- 1; NN++)
-//				{
-//					double Sum = 0.0;
-//					int i = N - NN - 1;
-//					int IP1 = i + 1 ;
-//					for (int j = IP1; j < N; j++)
-//						Sum = Sum + A[i][j]*X[j];
-//					X[i] = (A[i][N] - Sum)/A[i][i];
-//					//kan je hier delen door 0 ??
-//				}
-//			}
-//			
-//			//copy result into F
-////			for (int i = 0; i < N; i++)
-////				F[i] = X[i];
-//			
-//			System.arraycopy(X, 0, F, 0, X.length);
-//			
-//			//PrintSingleMatrix(X,N);
-//			return X;
-//	}
+//		System.out.println("GENROLL elastic/plastic calculation of tube tubesheet rolling");
+//		System.out.println("use inch and psi and decimal .\n");
+//		System.out.println();
+//		
+//		new GENRoll();
 //
-//	
-	
-	
-	public static void main(String[] args)
-	{
-			
-		System.out.println("GENROLL elastic/plastic calculation of tube tubesheet rolling");
-		System.out.println("use inch and psi and decimal .\n");
-		System.out.println();
-		
-		new GENRoll();
-
-	}
+//	}
 	
 	
 
-} //end program GENROLL
+} //end class GENROLL
