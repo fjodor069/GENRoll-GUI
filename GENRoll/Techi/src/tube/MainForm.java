@@ -9,11 +9,14 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import javax.swing.JComboBox;
 import javax.swing.JTextArea;
 import java.awt.Font;
 import javax.swing.JScrollPane;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
 
 public class MainForm
 {
@@ -30,13 +33,20 @@ public class MainForm
 	private JTextField textES;
 	private JTextField textSYS;
 	private JTextField textALPHAS;
-	
+
 	private JTextArea textArea1;
 	// the calculation objects
 	//
 	private GENRoll G;
 	private boolean bResult;
 
+	// 16-2-2022 added list object with material data
+	public ArrayList<Material> materials = new ArrayList<Material>();
+	private Material tubesheetMaterial;
+	private Material tubeMaterial;
+	
+	JComboBox<Material> comboTubeMaterial = new JComboBox<Material>();
+	JComboBox<Material> comboTubesheetMaterial = new JComboBox<Material>();
 	/**
 	 * Launch the application.
 	 */
@@ -63,160 +73,196 @@ public class MainForm
 	 */
 	public MainForm()
 	{
-		//initialise GUI form
+		// initialise material list
+		initMaterials();
+
+		// initialise GUI form
 		initialize();
 
-		
-		//create calculation object 
+		// initialise material list
+		initMaterials();
+		// create calculation object
 		G = new GENRoll();
 
-		//prepare input
+		// prepare input
 		G.ReadInput();
 		printString("Generating input");
-		
+
 		setTextFields(G);
-		
-		
-		
+
 	}
 
-	
-	//process the calculate button
-	//calculate button pressed
-    //perform the calculation
-    //and fill the textarea with results
+	// process the calculate button
+	// calculate button pressed
+	// perform the calculation
+	// and fill the textarea with results
 	public void calculateForm()
 	{
-		
-		getTextFields(G);
-		
-		bResult = G.Calculate();
-		
-		textArea1.setText(null);
-		
-		//print results in the textArea
-        if (bResult)
-        {
-            printInput(G);
-            printMaterial(G);
-            printResults(G);
 
-        }
-        else
-        {
-            textArea1.append("No results available\n");
-            printString("\n"+ G.message);
-        }
-		
+		getTextFields(G);
+
+		bResult = G.Calculate();
+
+		textArea1.setText(null);
+
+		// print results in the textArea
+		if (bResult)
+		{
+			printInput(G);
+			printMaterial(G);
+			printResults(G);
+
+		} else
+		{
+			textArea1.append("No results available\n");
+			printString("\n" + G.message);
+		}
+
 	}
-	
-	//clear button pressed
-    //clear the text area
+
+	// clear button pressed
+	// clear the text area
 	public void clearForm()
 	{
 		textArea1.setText(null);
-		
+
 	}
-	
+
+	//this is to fill the input fields 
 	public void setTextFields(GENRoll R)
 	{
 		if (R != null)
-        {
-            textDOUT.setText(Double.toString(R.DOUT));
-            textT0.setText(Double.toString(R.T0));
-            textC.setText(Double.toString(R.C));
-            textP00.setText(Double.toString(R.P00));
-            textHS.setText(Double.toString(R.HS));
-            textET.setText(Double.toString(R.getET()));
-            textSYT.setText(Double.toString(R.getSYT()));
-            textALPHAT.setText(Double.toString(R.getALPHAT()));
-            textES.setText(String.valueOf(R.getES()));
-            textSYS.setText(String.valueOf(R.getSYS()));
-            textALPHAS.setText(String.valueOf(R.getALPHAS()));
-        }	
+		{
+			textDOUT.setText(Double.toString(R.DOUT));
+			textT0.setText(Double.toString(R.T0));
+			textC.setText(Double.toString(R.C));
+			textP00.setText(Double.toString(R.P00));
+			textHS.setText(Double.toString(R.HS));
+			
+			comboTubeMaterial.setSelectedIndex(1);
+			tubeMaterial = materials.get(1);
+			textET.setText(Double.toString(tubeMaterial.getElasticity()) );
+			textSYT.setText(Double.toString( tubeMaterial.getYield() ) );
+			textALPHAT.setText(Double.toString(tubeMaterial.getAlpha()));
+			
+			comboTubesheetMaterial.setSelectedIndex(0);
+			tubesheetMaterial = materials.get(0);
+			textES.setText(Double.toString(tubesheetMaterial.getElasticity()) );
+			textSYS.setText(Double.toString( tubesheetMaterial.getYield() ) );
+			textALPHAS.setText(Double.toString(tubesheetMaterial.getAlpha()));
+			//fields E, SY and ALPHA are set by the combobox
+
+		}
 	}
-	
+
 	public void getTextFields(GENRoll R)
 	{
-		 if (R != null)
-	        {
-			 //TODO: check for Exceptions
-	            R.DOUT = Double.parseDouble(textDOUT.getText());
-	            R.T0 = Double.parseDouble(textT0.getText());
-	            R.C = Double.parseDouble(textC.getText());
-	            R.P00 = Double.parseDouble(textP00.getText());
-	            R.HS = Double.parseDouble(textHS.getText());
-	            R.setET(Double.parseDouble(textET.getText()));
-	            R.setSYT(Double.parseDouble(textSYT.getText()));
-	            R.setALPHAT(Double.parseDouble(textALPHAT.getText()));
-	            R.setES(Double.parseDouble(textES.getText()));
-	            R.setSYS(Double.parseDouble(textSYS.getText()));
-	            R.setALPHAS(Double.parseDouble(textALPHAS.getText()));
+		if (R != null)
+		{
+			// TODO: check for Exceptions
+			R.DOUT = Double.parseDouble(textDOUT.getText());
+			R.T0 = Double.parseDouble(textT0.getText());
+			R.C = Double.parseDouble(textC.getText());
+			R.P00 = Double.parseDouble(textP00.getText());
+			R.HS = Double.parseDouble(textHS.getText());
+			R.setET(Double.parseDouble(textET.getText()));
+			R.setSYT(Double.parseDouble(textSYT.getText()));
+			R.setALPHAT(Double.parseDouble(textALPHAT.getText()));
+			R.setES(Double.parseDouble(textES.getText()));
+			R.setSYS(Double.parseDouble(textSYS.getText()));
+			R.setALPHAS(Double.parseDouble(textALPHAS.getText()));
 
-	        }
+		}
 	}
-	
+
 	public void printInput(GENRoll R)
 	{
 		// print the input variables
-        textArea1.append("\n**** INPUT DATA ****\n");
-        textArea1.append(String.format( "Tube outside diameter DOUT= %6.3f (in) \n",R.DOUT  ));
-        textArea1.append(String.format("Tube wall thickness T0= %6.3f (in) \n",R.T0 ));
-        textArea1.append(String.format("Poisson ratio ANU= %6.3f (-) \n",R.ANU));
-        textArea1.append(String.format("Radius clearance C= %6.3f (in) \n",R.C));
-        textArea1.append(String.format("Maximum rolling pressure P00= %6.3f (psi) \n",R.P00));
+		textArea1.append("\n**** INPUT DATA ****\n");
+		textArea1.append(String
+				.format("Tube outside diameter DOUT= %6.3f (in) \n", R.DOUT));
+		textArea1.append(
+				String.format("Tube wall thickness T0= %6.3f (in) \n", R.T0));
+		textArea1.append(
+				String.format("Poisson ratio ANU= %6.3f (-) \n", R.ANU));
+		textArea1.append(
+				String.format("Radius clearance C= %6.3f (in) \n", R.C));
+		textArea1.append(String
+				.format("Maximum rolling pressure P00= %6.3f (psi) \n", R.P00));
 
-        printString(String.format("Rolling temperature TROLL= %6.3f (degs.F) \n",R.TROLL));
-        printString(String.format("Operating temperature TOP= %6.3f (degs.F) \n",R.TOP));
-        printString(String.format("Step size of rolling pressure increment DP00= %6.3f (psi) \n",R.DP00));
-        printString(String.format("Step size of temperature increment DT0= %6.3f (degs.F) \n",R.DT0));
-        printString(String.format("Layer thickness assumed HS= %6.3f (in) \n",R.HS));
-        printString(String.format("Printout step size for rolling increment PSTEP= %6.3f \n",R.PSTEP));
-        printString(String.format("Printout step size for temperature TSTEP= %6.3f \n",R.TSTEP));
-        printString(String.format("Printout options NPR= %b \n", R.NPR));
-        printString(String.format("Temperature return options NRETUN= %b \n", R.NRETUN));	
+		printString(String.format(
+				"Rolling temperature TROLL= %6.3f (degs.F) \n", R.TROLL));
+		printString(String
+				.format("Operating temperature TOP= %6.3f (degs.F) \n", R.TOP));
+		printString(String.format(
+				"Step size of rolling pressure increment DP00= %6.3f (psi) \n",
+				R.DP00));
+		printString(String.format(
+				"Step size of temperature increment DT0= %6.3f (degs.F) \n",
+				R.DT0));
+		printString(String.format("Layer thickness assumed HS= %6.3f (in) \n",
+				R.HS));
+		printString(String.format(
+				"Printout step size for rolling increment PSTEP= %6.3f \n",
+				R.PSTEP));
+		printString(String.format(
+				"Printout step size for temperature TSTEP= %6.3f \n", R.TSTEP));
+		printString(String.format("Printout options NPR= %b \n", R.NPR));
+		printString(String.format("Temperature return options NRETUN= %b \n",
+				R.NRETUN));
+	}
+
+	public void printMaterial(GENRoll R)
+	{
+		//print the material properties
+        textArea1.append("\n**** MATERIAL DATA ****\n");
+        textArea1.append(String.format("Youngs Modulus of tube ET= %6.3f (psi) \n",R.getET() ));
+        textArea1.append(String.format("Yield strength of tube SYT= %6.3f (psi) \n",R.getSYT()) );
+        textArea1.append(String.format("Thermal expansion coefficient of tube ALPHAT= %6.3e \n",R.getALPHAT() ));
+        textArea1.append(String.format("Youngs Modulus of tubesheet ES= %6.3f (psi) \n",R.getES()) );
+        textArea1.append(String.format("Yield strength of tubesheet SYS= %6.3f (psi) \n",R.getSYS()) );
+        textArea1.append(String.format("Thermal expansion coefficient of tubesheet ALPHAS= %6.3e \n",R.getALPHAS()) );
 	}
 	
-	public void printMaterial(GENRoll G)
-	{
-		
-	}
 	public void printResults(GENRoll R)
 	{
-		
+
 		printString("\n**** CALCULATION RESULTS \n\n");
-	    printString("\n"+ R.message + "\n");
-	        //TODO: print more results
-	        printString(String.format("Critical Rolling pressure P0= %6.3f [psi] \n",R.P0));
+		printString("\n" + R.message + "\n");
+		// TODO: print more results
+		printString(String
+				.format("Critical Rolling pressure P0= %6.3f [psi] \n", R.P0));
 
-	        printString("   (1) LOADING STAGE.\n");
-	        printString("Rolling pressure   Contact Pressure  Plastic Layers         Pressures between layers \n");
-	        printString("    (psi)                (psi)       1 2 3 4 5 6 7 8 9 10    2-3   3-4   4-5   5-6   6-7   7-8   8-9   9-10\n");
+		printString("   (1) LOADING STAGE.\n");
+		printString(
+				"Rolling pressure   Contact Pressure  Plastic Layers         Pressures between layers \n");
+		printString(
+				"    (psi)                (psi)       1 2 3 4 5 6 7 8 9 10    2-3   3-4   4-5   5-6   6-7   7-8   8-9   9-10\n");
 
-	        if (R.P0 >= (R.KK*R.PSTEP))
-	        {
-	            printString(String.format("   %8.1f          %8.1f        ",R.P0,R.P[0]));
-	            for (int i = 0; i < 10; i++)
-	            {
-	                if (R.KJ1[i])				//KJ1
-	                    printString("1 ");
-	                else
-	                    printString("0 ");
-	            }
-	            for (int i = 1; i <= 8; i++)
-	            {
-	                printString(String.format("%6.0f",R.P[i]));
-	            }
+		if (R.P0 >= (R.KK * R.PSTEP))
+		{
+			printString(String.format("   %8.1f          %8.1f        ", R.P0,
+					R.P[0]));
+			for (int i = 0; i < 10; i++)
+			{
+				if (R.KJ1[i]) // KJ1
+					printString("1 ");
+				else
+					printString("0 ");
+			}
+			for (int i = 1; i <= 8; i++)
+			{
+				printString(String.format("%6.0f", R.P[i]));
+			}
 
-
-	        }
+		}
 	}
-	 //prints a string to textArea1
-    private void printString(String S)
-    {
-    	textArea1.append(S);
-    }
-	
+	// prints a string to textArea1
+	private void printString(String S)
+	{
+		textArea1.append(S);
+	}
+
 	/**
 	 * Initialize the contents of the frame.
 	 */
@@ -236,7 +282,8 @@ public class MainForm
 		lblNewLabel.setBounds(10, 14, 266, 14);
 		genPanel.add(lblNewLabel);
 
-		JLabel lblNewLabel_1 = new JLabel("Thermal expansion tube [in/in.F] ALPHAT");
+		JLabel lblNewLabel_1 = new JLabel(
+				"Thermal expansion tube [in/in.F] ALPHAT");
 		lblNewLabel_1.setBounds(10, 226, 266, 14);
 		genPanel.add(lblNewLabel_1);
 
@@ -248,7 +295,8 @@ public class MainForm
 		lblNewLabel_3.setBounds(10, 64, 266, 14);
 		genPanel.add(lblNewLabel_3);
 
-		JLabel lblNewLabel_4 = new JLabel("Maximum rolling pressure [psi] P00:");
+		JLabel lblNewLabel_4 = new JLabel(
+				"Maximum rolling pressure [psi] P00:");
 		lblNewLabel_4.setBounds(10, 89, 266, 14);
 		genPanel.add(lblNewLabel_4);
 
@@ -325,62 +373,124 @@ public class MainForm
 		});
 		btnClear.setBounds(227, 257, 89, 23);
 		genPanel.add(btnClear);
-
-		JComboBox comboTubeMaterial = new JComboBox();
+		//---------------------------------------------------------------------
+		//JComboBox<Material> comboTubeMaterial = new JComboBox<Material>();
+		for (Material m : materials)
+		{
+			comboTubeMaterial.addItem(m);
+		}
+	
+		comboTubeMaterial.addItemListener(new ItemListener()
+		{
+			public void itemStateChanged(ItemEvent e)
+			{
+				if (e.getStateChange() == ItemEvent.SELECTED)
+				{
+					//set the textboxes for tube material
+					tubeMaterial = (Material)e.getItem();
+					textET.setText(Double.toString(tubeMaterial.getElasticity()) );
+					textSYT.setText(Double.toString( tubeMaterial.getYield() ) );
+					textALPHAT.setText(Double.toString(tubeMaterial.getAlpha()));
+					
+					
+				}
+			}
+		});
+		
 		comboTubeMaterial.setBounds(218, 142, 146, 22);
 		genPanel.add(comboTubeMaterial);
-
-		JComboBox comboTubesheetMaterial = new JComboBox();
+		//---------------------------------------------------------------------------------------------
+		//JComboBox<Material> comboTubesheetMaterial = new JComboBox<Material>();
+		for (Material m : materials)
+		{
+			comboTubesheetMaterial.addItem(m);
+		}
+		comboTubesheetMaterial.setSelectedIndex(0);
+	
+		comboTubesheetMaterial.addItemListener(new ItemListener()
+		{
+			public void itemStateChanged(ItemEvent e)
+			{
+				if (e.getStateChange() == ItemEvent.SELECTED)
+				{
+					tubesheetMaterial = (Material)e.getItem();
+					//set the textboxes for tube material
+					textES.setText(Double.toString(tubesheetMaterial.getElasticity()) );
+					textSYS.setText(Double.toString( tubesheetMaterial.getYield() ) );
+					textALPHAS.setText(Double.toString(tubesheetMaterial.getAlpha()));
+					
+					
+				}
+			}
+		});
+		
 		comboTubesheetMaterial.setBounds(614, 142, 146, 22);
 		genPanel.add(comboTubesheetMaterial);
 		
-		JLabel lblNewLabel_1_1 = new JLabel("Thermal expansion tubesheet [in/in.F] ALPHAS");
+		
+		//----------------------------------------------------------------------------
+		JLabel lblNewLabel_1_1 = new JLabel(
+				"Thermal expansion tubesheet [in/in.F] ALPHAS");
 		lblNewLabel_1_1.setBounds(386, 232, 266, 14);
 		genPanel.add(lblNewLabel_1_1);
-		
-		JLabel lblNewLabel_6_1 = new JLabel("Youngs modulus tubesheet [psi] ES:");
+
+		JLabel lblNewLabel_6_1 = new JLabel(
+				"Youngs modulus tubesheet [psi] ES:");
 		lblNewLabel_6_1.setBounds(386, 178, 266, 14);
 		genPanel.add(lblNewLabel_6_1);
-		
-		JLabel lblNewLabel_7_1 = new JLabel("Yield strength tubesheet [psi] SYS:");
+
+		JLabel lblNewLabel_7_1 = new JLabel(
+				"Yield strength tubesheet [psi] SYS:");
 		lblNewLabel_7_1.setBounds(386, 203, 266, 14);
 		genPanel.add(lblNewLabel_7_1);
-		
+
 		textES = new JTextField();
 		textES.setColumns(10);
 		textES.setBounds(674, 175, 86, 20);
 		genPanel.add(textES);
-		
+
 		textSYS = new JTextField();
 		textSYS.setColumns(10);
 		textSYS.setBounds(674, 200, 86, 20);
 		genPanel.add(textSYS);
-		
+
 		textALPHAS = new JTextField();
 		textALPHAS.setColumns(10);
 		textALPHAS.setBounds(674, 229, 86, 20);
 		genPanel.add(textALPHAS);
-		
+
 		JLabel lblNewLabel_8 = new JLabel("progam made with Java - Eclipse");
 		lblNewLabel_8.setFont(new Font("Arial", Font.BOLD, 12));
 		lblNewLabel_8.setBounds(426, 14, 334, 14);
 		genPanel.add(lblNewLabel_8);
-		
+
 		JLabel lblNewLabel_9 = new JLabel("tube material:");
 		lblNewLabel_9.setBounds(10, 147, 186, 14);
 		genPanel.add(lblNewLabel_9);
-		
+
 		JLabel lblNewLabel_10 = new JLabel("tubesheet material:");
 		lblNewLabel_10.setBounds(386, 146, 192, 14);
 		genPanel.add(lblNewLabel_10);
-		
+
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds(25, 303, 735, 244);
 		genPanel.add(scrollPane);
-		
+
 		textArea1 = new JTextArea();
 		scrollPane.setViewportView(textArea1);
 		textArea1.setFont(new Font("Consolas", Font.BOLD, 12));
 		textArea1.setEditable(false);
 	}
+
+	private void initMaterials()
+	{
+		// name,E,SY,ALPHA
+		materials.add(new Material("CuNi 90/10", 1.8E7, 1.5E4, 9.5E-6));
+		materials.add(new Material("CuNi 70/30", 2.2E7, 1.8E4, 9E-6));
+		materials.add(new Material("Steel", 2.9E7, 3E4, 6.5E-6));
+		materials.add(new Material("Titanium", 1.49E7, 4.0E4, 4.8E-6));
+		materials.add(new Material("Muntz", 1.5E7, 2.0E4, 11.6E-6));
+
+	}
+
 }

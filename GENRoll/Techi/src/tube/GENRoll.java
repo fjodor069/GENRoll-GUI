@@ -2,7 +2,6 @@ package tube;
 
 import java.util.Arrays;
 import java.util.Locale;
-import java.util.Scanner;
 import javax.swing.JOptionPane;
 
 //import static members: 
@@ -42,6 +41,7 @@ import static java.lang.Math.*;
 // 8-2-2022			add GUI in eclipse
 // 9-2-2022			make get/set properties for input
 //
+
 
 public class GENRoll
 {
@@ -185,15 +185,15 @@ public class GENRoll
 	
 	public void ReadInput()
 	{
-		Scanner input = new Scanner(System.in);
+		//Scanner input = new Scanner(System.in);
 		
-		input.useLocale(locale);
+		//input.useLocale(locale);
 		//prompt the user to enter three numbers
 		// TOD = tube outer diameter [inch]
 		// TT = tube nominal wall thickness [inch]
 		// C = radial clearance between tube and hole [inch]
 	
-		System.out.println("Generating input");
+		//System.out.println("Generating input");
 		// prompt the user to enter four numbers
 		// ET = youngs modulus of tube material [psi]
 		// ES = youngs modulus of tubesheet material [psi]
@@ -229,8 +229,8 @@ public class GENRoll
 		//ES = input.nextDouble();
 		//SYT = input.nextDouble();
 		//SYS = input.nextDouble();
-		System.out.println();
-		input.close();
+		//System.out.println();
+		//input.close();
 	
 	}
 	
